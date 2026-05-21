@@ -1,0 +1,284 @@
+#!/usr/bin/env python3
+"""Convert all COLTIE GROW markdown curriculum to a styled HTML site."""
+
+import markdown
+import os
+import re
+from datetime import datetime
+
+SRC = "/tmp/coltie-grow-curriculum"
+DST = os.path.join(SRC, "docs")
+
+SESSIONS = [
+    ("session-01-welcome-ai-landscape", "Session 1: Welcome to AI — The Landscape"),
+    ("session-02-prompt-engineering", "Session 2: Prompt Engineering & AI Ethics"),
+    ("session-03-career-identity", "Session 3: Career Identity — Who Am I?"),
+    ("session-04-university-research", "Session 4: University Research & Shortlisting"),
+    ("session-05-personal-statement", "Session 5: Personal Statement — Your Story"),
+    ("session-06-ai-toolkit-profile", "Session 6: No-Code AI Toolkit & COLTIE Profile"),
+    ("session-07-guest-speakers-portfolio", "Session 7: Guest Speakers & Portfolio Review"),
+    ("session-08-final-presentations", "Session 8: Final Presentations & Graduation"),
+]
+
+HANDOUTS = [
+    ("costar-framework", "COSTAR Prompt Framework"),
+    ("ai-ethics-checklist", "AI Ethics Checklist"),
+    ("video-profile-plan", "60-Second Video Profile Worksheet"),
+]
+
+CSS = """
+:root {
+  --primary: #1a56db;
+  --primary-light: #e8effd;
+  --accent: #059669;
+  --bg: #ffffff;
+  --bg-alt: #f8fafc;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+header { background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%); color: white; padding: 48px 0 40px; }
+header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+header .subtitle { font-size: 1.1rem; opacity: 0.9; margin-bottom: 4px; }
+header .meta { opacity: 0.7; font-size: 0.9rem; margin-top: 12px; }
+
+/* Navigation */
+.site-nav { background: var(--bg-alt); border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 100; }
+.site-nav .container { display: flex; gap: 8px; flex-wrap: wrap; }
+.site-nav a { text-decoration: none; color: var(--primary); font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); transition: all 0.2s; }
+.site-nav a:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* Content */
+.content { padding: 40px 0 60px; }
+h1 { font-size: 2rem; color: var(--primary); margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 3px solid var(--primary-light); }
+h2 { font-size: 1.5rem; color: #0f172a; margin: 28px 0 12px; }
+h3 { font-size: 1.2rem; color: #334155; margin: 24px 0 10px; }
+p { margin: 12px 0; }
+ul, ol { margin: 12px 0; padding-left: 28px; }
+li { margin: 6px 0; }
+strong { color: #0f172a; }
+code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: var(--radius); overflow-x: auto; margin: 16px 0; font-size: 0.9rem; }
+pre code { background: none; padding: 0; color: inherit; }
+blockquote { border-left: 4px solid var(--primary); padding: 12px 20px; margin: 16px 0; background: var(--primary-light); border-radius: 0 var(--radius) var(--radius) 0; }
+hr { border: none; border-top: 2px solid var(--border); margin: 32px 0; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: var(--bg-alt); font-weight: 600; }
+tr:hover { background: var(--bg-alt); }
+
+/* Cards on index */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin: 24px 0; }
+.card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: all 0.2s; }
+.card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(26,86,219,0.1); }
+.card h3 { margin: 0 0 8px; font-size: 1rem; }
+.card h3 a { color: var(--primary); text-decoration: none; }
+.card p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
+.card .badge { display: inline-block; font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 2px 10px; border-radius: 12px; margin-top: 8px; }
+
+/* Checklist */
+input[type="checkbox"] { margin-right: 8px; }
+
+/* Back link */
+.back-link { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-size: 0.9rem; }
+.back-link:hover { text-decoration: underline; }
+
+/* Footer */
+footer { background: var(--bg-alt); border-top: 1px solid var(--border); padding: 24px 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+"""
+
+def md_to_html(md_text):
+    """Convert markdown to HTML with extensions."""
+    return markdown.markdown(
+        md_text,
+        extensions=[
+            'markdown.extensions.tables',
+            'markdown.extensions.fenced_code',
+            'markdown.extensions.codehilite',
+            'markdown.extensions.toc',
+            'markdown.extensions.smarty',
+        ]
+    )
+
+def wrap_page(title, html_body, is_index=False):
+    """Wrap HTML body in full page template."""
+    nav_items = ""
+    if not is_index:
+        nav_items = '<a href="index.html">🏠 Home</a>\n'
+        for slug, label in SESSIONS:
+            nav_items += f'<a href="{slug}.html">{label.split(":")[0]}</a>\n'
+    
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title} — COLTIE GROW</title>
+<style>
+{CSS}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>🌱 COLTIE GROW</h1>
+    <div class="subtitle">AI Literacy & College Admissions Bootcamp</div>
+    <div class="meta">4 Weeks · 8 Sessions · Classes 9–12 · No Code Required</div>
+  </div>
+</header>
+
+<nav class="site-nav">
+  <div class="container">
+    {nav_items}
+  </div>
+</nav>
+
+<div class="content">
+  <div class="container">
+    {html_body}
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>COLTIE GROW Curriculum · Built by Kunia (AI) for Subhankar Pattanayak & Anuj Sharma</p>
+    <p><a href="https://github.com/subhankarpattanayak42-blip/coltie-grow-curriculum" style="color:var(--primary)">View on GitHub</a></p>
+  </div>
+</footer>
+
+</body>
+</html>"""
+
+def build_index():
+    """Build the main index page."""
+    sections = ""
+    for slug, label in SESSIONS:
+        num = slug.split("-")[1]
+        sections += f"""<div class="card">
+  <h3><a href="{slug}.html">{label}</a></h3>
+  <p>90-min live session with activities, homework, and teaching aids.</p>
+  <span class="badge">Week {(int(num)-1)//2 + 1}</span>
+</div>
+"""
+    
+    handout_links = ""
+    for slug, label in HANDOUTS:
+        handout_links += f'<li><a href="handouts/{slug}.html">{label}</a></li>\n'
+    
+    body = f"""
+<h1>📚 Curriculum Overview</h1>
+
+<p>A 4-week, 8-session live online program for high school students (Classes 9–12) building AI literacy and a complete university application portfolio.</p>
+
+<p><strong>Instructors:</strong> Subhankar Pattanayak & Anuj Sharma</p>
+<p><strong>Guest Speakers:</strong> AI leaders from NVIDIA, Capital One, and leading universities</p>
+
+<h2>🗓️ 8 Sessions</h2>
+
+<div class="card-grid">
+{sections}
+</div>
+
+<h2>📋 Student Deliverables</h2>
+<ul>
+  <li>✅ Personal statement draft</li>
+  <li>✅ University shortlist (8-factor rubric)</li>
+  <li>✅ 60-second video profile</li>
+  <li>✅ Permanent public COLTIE profile URL</li>
+  <li>✅ AI literacy certification</li>
+</ul>
+
+<h2>📎 Teaching Aids</h2>
+<ul>
+{handout_links}
+</ul>
+
+<h2>📖 Student Resources</h2>
+<p><a href="student-resources.html">Curated tools, career resources, university search, scholarships →</a></p>
+
+<h2>🏗️ Modules</h2>
+
+<table>
+<tr><th>Module</th><th>Sessions</th><th>Theme</th></tr>
+<tr><td><strong>Module 1</strong></td><td>1–2</td><td>AI Foundations — What AI is, LLMs, prompt engineering, ethics</td></tr>
+<tr><td><strong>Module 2</strong></td><td>3–4</td><td>Self Discovery — Career identity (Holland Code), university research</td></tr>
+<tr><td><strong>Module 3</strong></td><td>5–6</td><td>Portfolio Building — Personal statement, no-code AI toolkit, COLTIE profile</td></tr>
+<tr><td><strong>Module 4</strong></td><td>7–8</td><td>Launch — Guest speakers, final presentations, action plan</td></tr>
+</table>
+"""
+    return wrap_page("Home", body, is_index=True)
+
+def build_session(slug, title):
+    """Build a session page from markdown."""
+    md_path = os.path.join(SRC, "sessions", f"{slug}.md")
+    if not os.path.exists(md_path):
+        return None
+    
+    with open(md_path, "r") as f:
+        md_content = f.read()
+    
+    html_body = md_to_html(md_content)
+    return wrap_page(title, html_body)
+
+def build_handout(slug, title):
+    """Build a handout page from markdown."""
+    md_path = os.path.join(SRC, "teaching-aids", "handouts", f"{slug}.md")\
+        if slug != "video-profile-plan" else os.path.join(SRC, "teaching-aids", "worksheets", f"{slug}.md")
+    
+    if not os.path.exists(md_path):
+        return None
+    
+    with open(md_path, "r") as f:
+        md_content = f.read()
+    
+    html_body = md_to_html(md_content)
+    return wrap_page(title, html_body)
+
+def build_student_resources():
+    md_path = os.path.join(SRC, "student-resources", "README.md")
+    with open(md_path, "r") as f:
+        md_content = f.read()
+    html_body = md_to_html(md_content)
+    return wrap_page("Student Resources", html_body)
+
+def main():
+    os.makedirs(DST, exist_ok=True)
+    os.makedirs(os.path.join(DST, "handouts"), exist_ok=True)
+    
+    # Index
+    with open(os.path.join(DST, "index.html"), "w") as f:
+        f.write(build_index())
+    print("✅ index.html")
+    
+    # Sessions
+    for slug, title in SESSIONS:
+        html = build_session(slug, title)
+        if html:
+            with open(os.path.join(DST, f"{slug}.html"), "w") as f:
+                f.write(html)
+            print(f"✅ {slug}.html")
+    
+    # Handouts
+    for slug, title in HANDOUTS:
+        html = build_handout(slug, title)
+        if html:
+            with open(os.path.join(DST, "handouts", f"{slug}.html"), "w") as f:
+                f.write(html)
+            print(f"✅ handouts/{slug}.html")
+    
+    # Student Resources
+    with open(os.path.join(DST, "student-resources.html"), "w") as f:
+        f.write(build_student_resources())
+    print("✅ student-resources.html")
+    
+    print(f"\n🎉 Done! {len(os.listdir(DST)) + len(os.listdir(os.path.join(DST, 'handouts')))} files in {DST}")
+
+if __name__ == "__main__":
+    main()
