@@ -62,7 +62,7 @@ header .sub{font-size:.85rem;opacity:.8;margin-top:4px}
 <div id="name-screen"><h2>Enter your name</h2><p>to start</p><input type="text" id="player-name" class="name-input" placeholder="Your name" maxlength="30"><br><button class="name-submit" onclick="enterLobby()">Join</button></div>
 <div id="lobby" class="hidden"><h2>Choose a Quiz</h2><p>Select a session to begin</p><div id="quiz-grid" class="quiz-grid"></div><div id="scoreboard" class="hidden" style="margin-top:24px"><h3 style="color:#94a3b8;margin-bottom:8px">Leaderboard</h3><div id="lb-list"></div></div></div>
 <div id="quiz-screen" class="hidden"><div class="q-header"><div><div class="q-progress" id="q-progress">Q1/10</div><div class="q-score" id="q-score">Score:0</div></div><div class="timer-ring" id="timer">15</div></div><div class="q-text" id="q-text">Loading...</div><div class="options" id="options"></div></div>
-<div id="result" class="hidden"><div class="result-detail"><div class="row"><span class="label">Correct</span><span class="value" id="r-correct">0</span></div><div class="row"><span class="label">Wrong</span><span class="value" id="r-wrong">0</span></div><div class="row"><span class="label">Accuracy</span><span class="value" id="r-accuracy">0%</span></div></div><button class="name-submit" onclick="backToLobby()">Back to Quizzes</button></div>
+<div id="result" class="hidden"><div class="result-detail"><div class="row"><span class="label">Correct</span><span class="value" id="r-correct">0</span></div><div class="row"><span class="label">Wrong</span><span class="value" id="r-wrong">0</span></div><div class="row"><span class="label">Accuracy</span><span class="value" id="r-accuracy">0%</span></div><div class="row"><span class="label">Time Taken</span><span class="value" id="r-time">0s</span></div></div><button class="name-submit" onclick="backToLobby()">Back to Quizzes</button></div>
 </div>
 <div class="admin-toggle" onclick="toggleAdmin()">&#9881;</div>
 <div class="admin-panel hidden" id="admin-panel"><h3>Instructor Console</h3><button class="admin-btn" onclick="resetAll()">Reset Leaderboard</button><button class="admin-btn" onclick="clearData()">Clear All Data</button><div class="admin-status" id="admin-status">Ready</div></div>
@@ -75,6 +75,8 @@ let wrong = 0;
 let timer = null;
 let timeLeft = 0;
 let playerName = "";
+let quizStartTime = 0;
+let quizEndTime = 0;
 
 function enterLobby() {
   const name = document.getElementById("player-name").value.trim();
@@ -109,6 +111,8 @@ function showLB() {
 function startQuiz(key) {
   currentQuiz = QUIZZES[key];
   currentQ = 0; score = 0; correct = 0; wrong = 0;
+  quizStartTime = Date.now();
+  quizEndTime = 0;
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("result").classList.add("hidden");
   document.getElementById("quiz-screen").classList.remove("hidden");
@@ -163,6 +167,7 @@ function endQuiz() {
   document.getElementById("r-correct").textContent = correct;
   document.getElementById("r-wrong").textContent = wrong;
   document.getElementById("r-accuracy").textContent = Math.round(correct/(correct+wrong)*100) + "%";
+  document.getElementById("r-time").textContent = timeTaken;
   const lb = JSON.parse(localStorage.getItem("cgLB") || "[]");
   lb.push({n: playerName, s: score});
   localStorage.setItem("cgLB", JSON.stringify(lb));
@@ -170,6 +175,11 @@ function endQuiz() {
 }
 
 function sendScore() {
+  quizEndTime = Date.now();
+  const elapsed = Math.round((quizEndTime - quizStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeTaken = mins + "m " + secs + "s";
   const name = encodeURIComponent(playerName);
   const sc = encodeURIComponent(score);
   const cor = encodeURIComponent(correct);
@@ -185,6 +195,7 @@ function sendScore() {
       wrong: wrong,
       quiz: currentQuiz ? currentQuiz.title : "",
       accuracy: Math.round(correct/(correct+wrong)*100) + "%",
+      time_taken: timeTaken,
       _subject: "COLTIE GROW Quiz Result"
     })
   }).catch(function(e) { console.log("Email send skipped:", e); });
