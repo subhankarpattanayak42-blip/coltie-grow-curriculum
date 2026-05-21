@@ -208,12 +208,12 @@ function sendScore() {
 
 function sendToCloud() {
   const entry = {n: playerName, s: score, c: correct+"/"+currentQuiz.questions.length, a: Math.round(correct/(correct+wrong)*100)+"%", t: timeTaken, q: currentQuiz ? currentQuiz.title : ""};
-  fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+  fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c", {
     method: "GET"
   }).then(r => r.json()).then(data => {
     if (!data.scores) data.scores = [];
     data.scores.push(entry);
-    fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+    fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c", {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)

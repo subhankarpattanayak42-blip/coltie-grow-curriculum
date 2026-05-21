@@ -98,7 +98,7 @@ let allResults = [];
 
 function pullData() {
   document.getElementById("statusMsg").textContent = "Pulling...";
-  fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411")
+  fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c")
     .then(r => r.json())
     .then(data => {
       allResults = data.scores || [];
@@ -114,7 +114,7 @@ function pullData() {
 
 function clearData() {
   if (confirm("Clear ALL quiz results from the cloud? This cannot be undone.")) {
-    fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+    fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c", {
       method: "PUT",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({scores: []})
