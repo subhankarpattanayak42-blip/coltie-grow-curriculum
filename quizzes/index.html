@@ -162,6 +162,11 @@ function selectAnswer(selected) {
 }
 
 function endQuiz() {
+  quizEndTime = Date.now();
+  const elapsed = Math.round((quizEndTime - quizStartTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeTaken = mins + "m " + secs + "s";
   document.getElementById("quiz-screen").classList.add("hidden");
   document.getElementById("result").classList.remove("hidden");
   document.getElementById("r-correct").textContent = correct;
