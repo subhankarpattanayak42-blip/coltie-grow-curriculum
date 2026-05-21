@@ -113,6 +113,10 @@ tr:hover{background:rgba(255,255,255,.03)}
 <div id="entry-tab" class="hidden">
 <div class="entry-form">
 <h3>Add Student Score</h3>
+
+<div id="email-status" style="margin-bottom:12px;font-size:.85rem"></div>
+<button class="btn btn-primary" onclick="pullFromEmail()" style="margin-bottom:16px">📧 Fetch from Email</button>
+
 <div class="quick-presets">
 <button class="btn btn-outline" onclick="fillPreset('Session 1: AI Basics')">S1: AI Basics</button>
 <button class="btn btn-outline" onclick="fillPreset('Session 2: Prompt Engineering')">S2: Prompt Eng</button>
@@ -128,7 +132,7 @@ tr:hover{background:rgba(255,255,255,.03)}
 <div><label>Quiz</label><input type="text" id="entry-quiz" placeholder="Session 1: AI Basics"></div>
 <div><button class="btn btn-success" onclick="addEntry()">+ Add</button></div>
 </div>
-<p style="font-size:.8rem;color:#64748b;margin-top:8px">Type scores as students call them out. All entries save to the dashboard below.</p>
+<p style="font-size:.8rem;color:#64748b;margin-top:8px">Type scores or click "Fetch from Email" to auto-pull from subhankar@agentmail.to</p>
 </div>
 </div>
 
@@ -238,7 +242,36 @@ function render() {
   });
 }
 
-// Auto pull
+function pullFromEmail() {
+  const btn = document.querySelector('.btn-primary[onclick*="pullFromEmail"]');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ Fetching...';
+  btn.disabled = true;
+  document.getElementById('email-status').innerHTML = '⏳ Fetching...';
+  fetch('./data/scores.json')
+    .then(r => r.json())
+    .then(data => {
+      const entries = data.scores || [];
+      const before = allResults.length;
+      entries.forEach(function(e) {
+        const dup = allResults.some(function(r) { return r.n === e.n && r.s === e.s && r.q === e.q; });
+        if (!dup) allResults.push(e);
+      });
+      localStorage.setItem('cgAllResults', JSON.stringify(allResults));
+      render();
+      const added = allResults.length - before;
+      document.getElementById('email-status').innerHTML = '✅ Fetched ' + entries.length + ' scores. Added ' + added + ' new.';
+      document.getElementById('statusMsg').textContent = 'Email fetch ' + new Date().toLocaleTimeString();
+      btn.innerHTML = orig;
+      btn.disabled = false;
+    })
+    .catch(function(e) {
+      document.getElementById('email-status').innerHTML = '❌ ' + e.message + '. Run pull-scores.py first';
+      btn.innerHTML = orig;
+      btn.disabled = false;
+    });
+}
+
 pullData();
 </script>
 </body>
