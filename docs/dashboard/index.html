@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>COLTIE GROW Quiz Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+header{text-align:center;padding:40px 20px 30px}
+header h1{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+header .sub{font-size:1rem;color:#94a3b8}
+.hidden{display:none!important}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;text-align:center}
+.stat-card .num{font-size:2rem;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .label{font-size:.85rem;color:#94a3b8;margin-top:4px}
+.stat-card.podium{border-color:#f59e0b;background:rgba(245,158,11,.1)}
+.stat-card.podium .num{-webkit-text-fill-color:#f59e0b;background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text}
+.controls{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.3)}
+.btn-danger{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-outline{background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.1)}
+.btn-outline:hover{background:rgba(255,255,255,.1)}
+.status-msg{font-size:.8rem;color:#64748b;margin-left:12px}
+.winner-card{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(234,179,8,.1));border:2px solid #f59e0b;border-radius:20px;padding:24px;margin-bottom:24px;text-align:center}
+.winner-card .crown{font-size:3rem;margin-bottom:4px}
+.winner-card .name{font-size:2rem;font-weight:700;color:#fbbf24}
+.winner-card .detail{font-size:.9rem;color:#94a3b8;margin-top:4px}
+.winner-card .score-badge{display:inline-block;background:rgba(251,191,36,.2);color:#fbbf24;padding:4px 20px;border-radius:20px;font-weight:700;font-size:1.3rem;margin-top:8px}
+.table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:rgba(255,255,255,.05);padding:14px 16px;text-align:left;font-size:.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+td{padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);font-size:.9rem}
+tr:hover{background:rgba(255,255,255,.03)}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-weight:700;font-size:.8rem}
+.rank-1{background:rgba(245,158,11,.2);color:#f59e0b}
+.rank-2{background:rgba(148,163,184,.2);color:#94a3b8}
+.rank-3{background:rgba(180,83,9,.2);color:#b45309}
+.rank-other{background:rgba(255,255,255,.05);color:#64748b}
+.quiz-tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;background:rgba(59,130,246,.15);color:#60a5fa}
+.empty-state{text-align:center;padding:60px 20px;color:#64748b}
+.empty-state .big-icon{font-size:4rem;margin-bottom:16px}
+.empty-state h3{font-size:1.3rem;color:#94a3b8;margin-bottom:8px}
+@media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr)}.controls{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>COLTIE GROW Dashboard</h1>
+<div class="sub">Live Quiz Results & Leaderboard</div>
+</header>
+
+<div class="stats-bar">
+<div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Total Submissions</div></div>
+<div class="stat-card"><div class="num" id="stat-players">0</div><div class="label">Unique Players</div></div>
+<div class="stat-card"><div class="num" id="stat-avg">0</div><div class="label">Avg Score</div></div>
+<div class="stat-card podium"><div class="num" id="stat-best">0</div><div class="label">Highest Score</div></div>
+</div>
+
+<div class="controls">
+<button class="btn btn-primary" onclick="pullData()">🔄 Pull Data</button>
+<button class="btn btn-outline" onclick="exportCSV()">📥 Export CSV</button>
+<button class="btn btn-danger" onclick="clearData()">🗑️ Clear All</button>
+<span class="status-msg" id="statusMsg"></span>
+</div>
+
+<div id="winner-section" class="hidden winner-card">
+<div class="crown">👑</div>
+<div class="name" id="winner-name"></div>
+<div class="detail" id="winner-detail"></div>
+<div class="score-badge" id="winner-score"></div>
+</div>
+
+<div id="table-wrap" class="hidden table-wrap">
+<table>
+<thead>
+<tr><th>Rank</th><th>Name</th><th>Score</th><th>Correct</th><th>Accuracy</th><th>Time</th><th>Quiz</th></tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div id="empty-state" class="empty-state">
+<div class="big-icon">📊</div>
+<h3>No quiz results yet</h3>
+<p>Click "Pull Data" to refresh from quiz submissions.</p>
+</div>
+</div>
+
+<script>
+let allResults = [];
+
+function pullData() {
+  try {
+    allResults = JSON.parse(localStorage.getItem("cgAllResults") || "[]");
+  } catch(e) { allResults = []; }
+  render();
+  document.getElementById("statusMsg").textContent = "Last pulled: " + new Date().toLocaleTimeString();
+}
+
+function clearData() {
+  if (confirm("Clear all quiz results?")) {
+    localStorage.removeItem("cgAllResults");
+    allResults = [];
+    render();
+    document.getElementById("statusMsg").textContent = "Cleared at " + new Date().toLocaleTimeString();
+  }
+}
+
+function exportCSV() {
+  if (allResults.length === 0) { alert("No data to export"); return; }
+  let csv = "Rank,Name,Score,Correct,Accuracy,Time,Quiz\n";
+  const sorted = [...allResults].sort((a,b) => b.s - a.s);
+  sorted.forEach((r,i) => {
+    csv += (i+1) + ',"' + r.n + '",' + r.s + ',' + r.c + ',' + r.a + ',' + r.t + ',"' + r.q + '"\n';
+  });
+  const blob = new Blob([csv], {type: "text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "coltie-grow-scores.csv"; a.click();
+  URL.revokeObjectURL(url);
+  document.getElementById("statusMsg").textContent = "CSV exported";
+}
+
+function render() {
+  const total = allResults.length;
+  const unique = [...new Set(allResults.map(r => r.n))].length;
+  const avgScore = total ? Math.round(allResults.reduce((s,r) => s + r.s, 0) / total) : 0;
+  const best = total ? Math.max(...allResults.map(r => r.s)) : 0;
+
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-players").textContent = unique;
+  document.getElementById("stat-avg").textContent = avgScore;
+  document.getElementById("stat-best").textContent = best;
+
+  const sorted = [...allResults].sort((a,b) => b.s - a.s);
+  const win = document.getElementById("winner-section");
+  if (sorted.length) {
+    win.classList.remove("hidden");
+    document.getElementById("winner-name").textContent = sorted[0].n;
+    document.getElementById("winner-score").textContent = sorted[0].s + " pts";
+    document.getElementById("winner-detail").textContent = sorted[0].q + " | " + sorted[0].t + " | " + sorted[0].a;
+  } else {
+    win.classList.add("hidden");
+  }
+
+  const tb = document.getElementById("tbody");
+  tb.innerHTML = "";
+  const tw = document.getElementById("table-wrap");
+  const es = document.getElementById("empty-state");
+  if (!sorted.length) { tw.classList.add("hidden"); es.classList.remove("hidden"); return; }
+  tw.classList.remove("hidden"); es.classList.add("hidden");
+
+  sorted.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    const rk = i + 1;
+    const rc = rk === 1 ? "rank-1" : rk === 2 ? "rank-2" : rk === 3 ? "rank-3" : "rank-other";
+    const md = rk === 1 ? "🥇" : rk === 2 ? "🥈" : rk === 3 ? "🥉" : rk;
+    tr.innerHTML = '<td><span class="rank-badge ' + rc + '">' + md + '</span></td>' +
+      '<td><strong>' + r.n + '</strong></td>' +
+      '<td><strong style="color:#fbbf24">' + r.s + '</strong></td>' +
+      '<td>' + r.c + '</td>' +
+      '<td>' + r.a + '</td>' +
+      '<td>' + r.t + '</td>' +
+      '<td><span class="quiz-tag">' + r.q + '</span></td>';
+    tb.appendChild(tr);
+  });
+}
+
+pullData();
+</script>
+</body>
+</html>
