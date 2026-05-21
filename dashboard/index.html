@@ -296,15 +296,16 @@ function uploadCSV(event) {
     for (let i = 1; i < lines.length; i++) {
       const parts = lines[i].split(',');
       if (parts.length >= 2 && parts[0].trim()) {
-        allResults.push({
+        const entry = {
           n: parts[0].trim(),
           s: parseInt(parts[1]) || 0,
           c: (parts[2] || '').trim() || '?',
           a: (parts[3] || '').trim() || '?',
           t: (parts[4] || '').trim() || '?',
           q: (parts[5] || '').trim() || 'CSV Import'
-        });
-        count++;
+        };
+        const dup = allResults.some(function(r) { return r.n === entry.n && r.s === entry.s && r.q === entry.q; });
+        if (!dup) { allResults.push(entry); count++; }
       }
     }
     localStorage.setItem('cgAllResults', JSON.stringify(allResults));
