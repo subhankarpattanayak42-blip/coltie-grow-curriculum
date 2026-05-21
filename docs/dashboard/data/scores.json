@@ -1,1 +1,21 @@
-{"scores": [], "last_updated": "never"}
+{
+  "scores": [
+    {
+      "n": "Test Student",
+      "s": 85,
+      "c": "8",
+      "a": "80%",
+      "t": "2m 30s",
+      "q": "Test Quiz"
+    },
+    {
+      "n": "Test User",
+      "s": 85,
+      "c": "8",
+      "a": "80%",
+      "t": "2m 30s",
+      "q": "Test Quiz"
+    }
+  ],
+  "last_updated": "2026-05-22T00:22:41.030645"
+}
