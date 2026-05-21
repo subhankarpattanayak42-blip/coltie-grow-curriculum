@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>COLTIE GROW Quiz</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#fff;min-height:100vh}
+.container{max-width:800px;margin:0 auto;padding:16px}
+.hidden{display:none!important}
+header{background:linear-gradient(135deg,#1a56db,#1e40af);padding:20px;text-align:center}
+header h1{font-size:1.5rem;font-weight:700}
+header .sub{font-size:.85rem;opacity:.8;margin-top:4px}
+#lobby{text-align:center;padding:40px 16px}
+.quiz-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.quiz-btn{background:#1e293b;border:2px solid #334155;border-radius:12px;padding:20px 12px;color:#fff;cursor:pointer;text-align:center}
+.quiz-btn:hover{border-color:#1a56db;background:#1e3a5f;transform:translateY(-2px)}
+.quiz-btn .num{font-size:.75rem;color:#1a56db;font-weight:600}
+.quiz-btn .title{font-size:1rem;font-weight:600;margin-top:4px}
+.quiz-btn .count{font-size:.8rem;color:#64748b;margin-top:2px}
+.q-header{display:flex;justify-content:space-between;align-items:center;padding:16px;background:#1e293b;border-radius:12px;margin:16px 0}
+.q-header .q-progress{font-size:1rem;font-weight:600}
+.q-header .q-score{font-size:.9rem;color:#94a3b8}
+.timer-ring{width:48px;height:48px;border-radius:50%;border:4px solid #1a56db;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700}
+.q-text{font-size:1.5rem;font-weight:600;padding:24px 16px;text-align:center}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.option-btn{background:#1e293b;border:2px solid #334155;border-radius:12px;padding:20px;color:#fff;font-size:1.05rem;cursor:pointer;text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center}
+.option-btn:hover:not(.disabled){border-color:#1a56db;background:#1e3a5f}
+.option-btn.correct{border-color:#059669;background:#064e3b}
+.option-btn.wrong{border-color:#dc2626;background:#450a0a}
+.option-btn.disabled{cursor:default;opacity:.7}
+#result{text-align:center;padding:40px 16px}
+.result-detail{background:#1e293b;border-radius:12px;padding:20px;margin:12px 0}
+.result-detail .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155}
+.result-detail .row:last-child{border:0}
+.result-detail .label{color:#94a3b8}
+.result-detail .value{font-weight:600}
+#name-screen{text-align:center;padding:60px 16px}
+#name-screen h2{font-size:1.8rem;margin-bottom:8px}
+#name-screen p{color:#94a3b8;margin-bottom:24px}
+.name-input{width:100%;max-width:320px;padding:14px;font-size:1.1rem;border:2px solid #334155;border-radius:10px;background:#1e293b;color:#fff;outline:none;text-align:center}
+.name-input:focus{border-color:#1a56db}
+.name-submit{margin-top:16px;padding:14px 40px;font-size:1.1rem;background:#1a56db;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600}
+.name-submit:hover{background:#1e40af}
+.admin-toggle{position:fixed;bottom:16px;right:16px;background:#1e293b;border:2px solid #334155;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;font-size:1.5rem}
+.admin-toggle:hover{border-color:#1a56db;background:#1e3a5f}
+.admin-panel{position:fixed;bottom:80px;right:16px;width:320px;max-height:60vh;overflow-y:auto;background:#1e293b;border:1px solid #334155;border-radius:12px;padding:16px;z-index:99;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.admin-panel h3{font-size:.9rem;color:#94a3b8;margin-bottom:12px;text-transform:uppercase}
+.admin-btn{display:block;width:100%;padding:10px;margin:6px 0;background:#334155;border:none;border-radius:8px;color:#fff;cursor:pointer;font-size:.9rem;text-align:left}
+.admin-btn:hover{background:#1a56db}
+.admin-btn.danger:hover{background:#dc2626}
+.admin-status{font-size:.8rem;color:#94a3b8;margin-top:8px;padding:8px;background:#0f172a;border-radius:6px}
+.lb-entry{display:flex;align-items:center;padding:10px 16px;background:#1e293b;border-radius:8px;margin:4px 0}
+.lb-entry .rank{width:32px;font-weight:700;color:#1a56db}
+.lb-entry .name{flex:1;font-weight:500}
+.lb-entry .pts{font-weight:600;color:#059669}
+@media(max-width:600px){.options{grid-template-columns:1fr}.quiz-grid{grid-template-columns:1fr}}</style>
+</head>
+<body>
+<header><h1>COLTIE GROW Quiz</h1><div class="sub">AI Literacy & College Admissions</div></header>
+<div class="container">
+<div id="name-screen"><h2>Enter your name</h2><p>to start</p><input type="text" id="player-name" class="name-input" placeholder="Your name" maxlength="30"><br><button class="name-submit" onclick="enterLobby()">Join</button></div>
+<div id="lobby" class="hidden"><h2>Choose a Quiz</h2><p>Select a session to begin</p><div id="quiz-grid" class="quiz-grid"></div><div id="scoreboard" class="hidden" style="margin-top:24px"><h3 style="color:#94a3b8;margin-bottom:8px">Leaderboard</h3><div id="lb-list"></div></div></div>
+<div id="quiz-screen" class="hidden"><div class="q-header"><div><div class="q-progress" id="q-progress">Q1/10</div><div class="q-score" id="q-score">Score:0</div></div><div class="timer-ring" id="timer">15</div></div><div class="q-text" id="q-text">Loading...</div><div class="options" id="options"></div></div>
+<div id="result" class="hidden"><div class="result-detail"><div class="row"><span class="label">Correct</span><span class="value" id="r-correct">0</span></div><div class="row"><span class="label">Wrong</span><span class="value" id="r-wrong">0</span></div><div class="row"><span class="label">Accuracy</span><span class="value" id="r-accuracy">0%</span></div></div><button class="name-submit" onclick="backToLobby()">Back to Quizzes</button></div>
+</div>
+<div class="admin-toggle" onclick="toggleAdmin()">&#9881;</div>
+<div class="admin-panel hidden" id="admin-panel"><h3>Instructor Console</h3><button class="admin-btn" onclick="resetAll()">Reset Leaderboard</button><button class="admin-btn" onclick="clearData()">Clear All Data</button><div class="admin-status" id="admin-status">Ready</div></div>
+<script>const QUIZZES = {"session1": {"title": "Session 1: AI Basics", "icon": "\ud83e\udd16", "timePerQ": 15, "questions": [{"q": "What does AI stand for?", "o": ["Automated Intelligence", "Artificial Intelligence", "Augmented Input", "Automatic Integration"], "a": 1}, {"q": "Which uses AI?", "o": ["A calculator", "A light switch", "Netflix recommendations", "A bicycle"], "a": 2}, {"q": "What type of AI is ChatGPT?", "o": ["General AI", "Superintelligence", "Narrow AI", "None"], "a": 2}, {"q": "Can AI think and feel?", "o": ["True", "False"], "a": 1}, {"q": "What does LLM stand for?", "o": ["Large Logic Machine", "Large Language Model", "Linear Learning Method", "Low-Level Memory"], "a": 1}, {"q": "How does ChatGPT work?", "o": ["Searches Google", "Predicts next most likely word", "Thinks like a brain", "Calls a human"], "a": 1}, {"q": "Narrow AI example?", "o": ["Google Maps traffic", "Robot doing any job", "Smarter than humans", "A toaster"], "a": 0}, {"q": "AI hallucination?", "o": ["Sees ghosts", "Makes up false info confidently", "Dreams", "Sleeps"], "a": 1}, {"q": "AI invented 2022?", "o": ["True", "False"], "a": 1}, {"q": "Which career involves AI?", "o": ["Data scientist", "UX designer", "AI ethicist", "All of above"], "a": 3}]}, "session2": {"title": "Session 2: Prompt Engineering", "icon": "\u2328\ufe0f", "timePerQ": 15, "questions": [{"q": "C in COSTAR?", "o": ["Content", "Context", "Command", "Code"], "a": 1}, {"q": "Temperature in LLM?", "o": ["How hot", "How creative output is", "Weather", "Speed"], "a": 1}, {"q": "BAD prompt?", "o": ["Write about climate", "10th grader persuasive essay", "Photosynthesis by analogy", "Careers matching values"], "a": 0}, {"q": "A in COSTAR?", "o": ["Answer", "Audience", "Accuracy", "Algorithm"], "a": 1}, {"q": "Before AI assignment?", "o": ["Nothing", "Think first refine", "Let AI do all", "Skip thinking"], "a": 1}, {"q": "Token in LLM?", "o": ["A coin", "A word or sub-word", "A chip", "A ranking"], "a": 1}, {"q": "Cite AI as tool?", "o": ["True", "False"], "a": 0}, {"q": "Best feedback prompt?", "o": ["Is my essay good?", "Tell me main message and ask questions", "Fix this", "Rate 1-10"], "a": 1}, {"q": "S in COSTAR?", "o": ["Source", "Style", "Speed", "Size"], "a": 1}, {"q": "NOT ethics rule?", "o": ["Teacher approve?", "Think first?", "Verify facts?", "Sound smarter?"], "a": 3}]}, "session3": {"title": "Session 3: Career Identity", "icon": "\ud83e\udded", "timePerQ": 15, "questions": [{"q": "R in RIASEC?", "o": ["Realistic", "Random", "Rational", "Reactive"], "a": 0}, {"q": "Creative type?", "o": ["Realistic", "Investigative", "Artistic", "Conventional"], "a": 2}, {"q": "Teacher primary type?", "o": ["Realistic", "Social", "Enterprising", "Conventional"], "a": 1}, {"q": "Work values?", "o": ["Pay amount", "What matters in career", "Your skills", "Your grades"], "a": 1}, {"q": "NOT Holland type?", "o": ["Realistic", "Investigative", "Analytical", "Artistic"], "a": 2}, {"q": "Entrepreneur type?", "o": ["Realistic", "Investigative", "Artistic", "Enterprising"], "a": 3}, {"q": "Data scientist type?", "o": ["Realistic", "Investigative", "Social", "Conventional"], "a": 1}, {"q": "Holland code letters?", "o": ["1", "2", "3", "6"], "a": 2}, {"q": "Independence means?", "o": ["Income", "Stability", "Control schedule", "Prestige"], "a": 2}, {"q": "Best career AI prompt?", "o": ["What job?", "Careers matching code values", "Write resume", "Find job"], "a": 1}]}, "session4": {"title": "Session 4: University Research", "icon": "\ud83c\udf93", "timePerQ": 20, "questions": [{"q": "Factors in rubric?", "o": ["5", "6", "8", "10"], "a": 2}, {"q": "Reach school?", "o": ["Exceed avg", "Aligns avg", "Below avg", "Easy"], "a": 2}, {"q": "Safety school?", "o": ["Exceeds their avg", "Dangerous", "Dream", "Online"], "a": 0}, {"q": "Liberal arts country?", "o": ["UK", "USA", "India", "Germany"], "a": 1}, {"q": "3-year degrees?", "o": ["USA", "UK", "Canada", "Singapore"], "a": 1}, {"q": "Factor 5?", "o": ["Location", "Selectivity", "Cost", "Reputation"], "a": 1}, {"q": "Balanced list size?", "o": ["2-3", "5-6", "8-10", "15-20"], "a": 2}, {"q": "NOT factor?", "o": ["Academic Fit", "Career Outcomes", "Weather", "Cost"], "a": 2}, {"q": "Low tuition country?", "o": ["USA", "UK", "Germany", "Singapore"], "a": 2}, {"q": "Match acceptance rate?", "o": ["15-30%", "40-60%", "70%+", "Under 10%"], "a": 1}]}, "session5": {"title": "Session 5: Personal Statement", "icon": "\u270d\ufe0f", "timePerQ": 20, "questions": [{"q": "Common App words?", "o": ["500", "650", "800", "1000"], "a": 1}, {"q": "Admissions value?", "o": ["Grammar", "Voice authenticity", "Vocabulary", "Length"], "a": 1}, {"q": "Good essay topic?", "o": ["Achievements list", "Specific moment that changed you", "What they want", "Generic story"], "a": 1}, {"q": "UCAS limit?", "o": ["500 words", "4000 chars", "1000 words", "2 pages"], "a": 1}, {"q": "Show dont tell?", "o": ["More words", "Specific details not general", "More adjectives", "Longer"], "a": 1}, {"q": "AVOID in essays?", "o": ["Voice", "Insight", "Specificity", "Cliches"], "a": 3}, {"q": "Best AI for essays?", "o": ["Generate scratch", "Get feedback on your draft", "Write conclusion", "Replace thinking"], "a": 1}, {"q": "Identity moments?", "o": ["5 achievements", "5 moments that shaped you", "5 careers", "5 colleges"], "a": 1}, {"q": "Essay sound?", "o": ["Formal", "Like real teenager", "Dictionary", "News"], "a": 1}, {"q": "Start essay with?", "o": ["Dictionary def", "Hook immediately", "Your GPA", "Life summary"], "a": 1}]}, "session6": {"title": "Session 6: AI Toolkit", "icon": "\ud83d\udee0\ufe0f", "timePerQ": 15, "questions": [{"q": "Canva AI best for?", "o": ["Research", "Visual design", "Writing", "Transcription"], "a": 1}, {"q": "Perplexity best for?", "o": ["Design", "Research with citations", "Slides", "Video"], "a": 1}, {"q": "NotebookLM for?", "o": ["Doc analysis", "Image gen", "Music", "Coding"], "a": 0}, {"q": "Video start with?", "o": ["Your GPA", "A hook", "College list", "Parents"], "a": 1}, {"q": "Gamma used for?", "o": ["Video", "Presentations", "Research", "Email"], "a": 1}, {"q": "Video close with?", "o": ["Age", "COLTIE URL", "Grades", "School"], "a": 1}, {"q": "Video length?", "o": ["30s", "60s", "90s", "2min"], "a": 1}, {"q": "Otter.ai for?", "o": ["Design", "Transcription", "Slides", "Coding"], "a": 1}, {"q": "Upload video?", "o": ["YouTube", "COLTIE profile", "Instagram", "Drive"], "a": 1}, {"q": "Good hook?", "o": ["Full resume", "One surprising thing", "Test scores", "Where you live"], "a": 1}]}, "session7": {"title": "Session 7: Guest Speakers", "icon": "\ud83c\udfa4", "timePerQ": 15, "questions": [{"q": "Session 7 goal?", "o": ["Test", "Hear experts portfolio feedback", "Apply", "Graduate"], "a": 1}, {"q": "Who speaks?", "o": ["Only students", "AI industry leaders", "Robots", "Teachers only"], "a": 1}, {"q": "Students prepare?", "o": ["Nothing", "Portfolio review", "100 test", "Science project"], "a": 1}, {"q": "Keynote length?", "o": ["5 min", "30 min", "2 hours", "All day"], "a": 1}, {"q": "After keynote?", "o": ["Leave", "Student QandA", "Another keynote", "Lunch"], "a": 1}, {"q": "Final presentation?", "o": ["1 min", "5 min", "15 min", "30 min"], "a": 1}, {"q": "Presentation include?", "o": ["Only GPA", "Journey built learned next", "Full resume", "College list"], "a": 1}, {"q": "Feedback from?", "o": ["AI only", "Guest and instructors", "Strangers", "None"], "a": 1}, {"q": "Sign up final?", "o": ["Session 6", "Session 7", "Last day", "Never"], "a": 1}, {"q": "Portfolio impressive?", "o": ["50 pages", "Authenticity specificity growth", "Grades only", "AI wrote all"], "a": 1}]}, "session8": {"title": "Session 8: Graduation", "icon": "\ud83c\udf93", "timePerQ": 15, "questions": [{"q": "Final presentation?", "o": ["2 min", "5 min", "10 min", "15 min"], "a": 1}, {"q": "Who invited?", "o": ["Only students", "Parents and guests", "No one", "Only instructors"], "a": 1}, {"q": "Each gets?", "o": ["Trophy", "Digital certificate", "Cash", "Nothing"], "a": 1}, {"q": "Deliverables done?", "o": ["1", "3", "5", "None"], "a": 2}, {"q": "First part?", "o": ["Test scores", "Who you were before", "Resume", "Parents"], "a": 1}, {"q": "After presentations?", "o": ["Ends abruptly", "Instructor reflections guest closing", "Another quiz", "Homework"], "a": 1}, {"q": "Final line?", "o": ["Thats it", "Memorable closing next steps", "I dont know", "Goodbye"], "a": 1}, {"q": "Post benefit?", "o": ["Nothing", "COLTIE alumni community", "Free laptop", "Guaranteed admit"], "a": 1}, {"q": "COLTIE profile?", "o": ["Delete", "Keep updated achievements", "Ignore", "Private"], "a": 1}, {"q": "Most important?", "o": ["AI does everything", "Use AI responsibly build own future", "Grades dont matter", "College easy"], "a": 1}]}};
+let currentQuiz = null;
+let currentQ = 0;
+let score = 0;
+let correct = 0;
+let wrong = 0;
+let timer = null;
+let timeLeft = 0;
+let playerName = "";
+
+function enterLobby() {
+  const name = document.getElementById("player-name").value.trim();
+  if (!name) { alert("Enter your name"); return; }
+  playerName = name;
+  document.getElementById("name-screen").classList.add("hidden");
+  document.getElementById("lobby").classList.remove("hidden");
+  const grid = document.getElementById("quiz-grid");
+  const keys = Object.keys(QUIZZES);
+  keys.forEach((key, i) => {
+    const q = QUIZZES[key];
+    const d = document.createElement("div");
+    d.className = "quiz-btn";
+    d.innerHTML = `<div class="num">Session ${i+1}</div><div class="title">${q.icon} ${q.title}</div><div class="count">${q.questions.length} questions</div>`;
+    d.onclick = () => startQuiz(key);
+    grid.appendChild(d);
+  });
+  showLB();
+}
+
+function showLB() {
+  const lb = JSON.parse(localStorage.getItem("cgLB") || "[]");
+  const el = document.getElementById("lb-list");
+  if (!lb.length) { document.getElementById("scoreboard").classList.add("hidden"); return; }
+  document.getElementById("scoreboard").classList.remove("hidden");
+  lb.sort((a,b) => b.s - a.s);
+  el.innerHTML = lb.slice(0,10).map((e,i) =>
+    `<div class="lb-entry"><span class="rank">#${i+1}</span><span class="name">${e.n}</span><span class="pts">${e.s} pts</span></div>`
+  ).join("");
+}
+
+function startQuiz(key) {
+  currentQuiz = QUIZZES[key];
+  currentQ = 0; score = 0; correct = 0; wrong = 0;
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz-screen").classList.remove("hidden");
+  showQ();
+}
+
+function showQ() {
+  if (currentQ >= currentQuiz.questions.length) { endQuiz(); return; }
+  const q = currentQuiz.questions[currentQ];
+  document.getElementById("q-progress").textContent = `Q${currentQ+1}/${currentQuiz.questions.length}`;
+  document.getElementById("q-score").textContent = `Score: ${score}`;
+  document.getElementById("q-text").textContent = q.q;
+  const opts = document.getElementById("options");
+  opts.innerHTML = "";
+  q.o.forEach((opt, i) => {
+    const b = document.createElement("div");
+    b.className = "option-btn";
+    b.textContent = opt;
+    b.onclick = () => selectAnswer(i);
+    opts.appendChild(b);
+  });
+  timeLeft = currentQuiz.timePerQ;
+  document.getElementById("timer").textContent = timeLeft;
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").textContent = timeLeft;
+    if (timeLeft <= 0) selectAnswer(-1);
+  }, 1000);
+}
+
+function selectAnswer(selected) {
+  clearInterval(timer);
+  const q = currentQuiz.questions[currentQ];
+  const btns = document.querySelectorAll(".option-btn");
+  btns.forEach(b => b.classList.add("disabled"));
+  if (selected === q.a) {
+    correct++;
+    score += 10 + Math.max(0, timeLeft);
+    btns[selected].classList.add("correct");
+  } else {
+    wrong++;
+    if (selected >= 0) btns[selected].classList.add("wrong");
+    btns[q.a].classList.add("reveal-correct");
+  }
+  setTimeout(() => { currentQ++; showQ(); }, 1500);
+}
+
+function endQuiz() {
+  document.getElementById("quiz-screen").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("r-correct").textContent = correct;
+  document.getElementById("r-wrong").textContent = wrong;
+  document.getElementById("r-accuracy").textContent = Math.round(correct/(correct+wrong)*100) + "%";
+  const lb = JSON.parse(localStorage.getItem("cgLB") || "[]");
+  lb.push({n: playerName, s: score});
+  localStorage.setItem("cgLB", JSON.stringify(lb));
+}
+
+function backToLobby() {
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("lobby").classList.remove("hidden");
+  document.getElementById("quiz-grid").innerHTML = "";
+  const keys = Object.keys(QUIZZES);
+  keys.forEach((key, i) => {
+    const q = QUIZZES[key];
+    const d = document.createElement("div");
+    d.className = "quiz-btn";
+    d.innerHTML = `<div class="num">Session ${i+1}</div><div class="title">${q.icon} ${q.title}</div><div class="count">${q.questions.length} questions</div>`;
+    d.onclick = () => startQuiz(key);
+    document.getElementById("quiz-grid").appendChild(d);
+  });
+  showLB();
+}
+
+let adminOpen = false;
+function toggleAdmin() {
+  adminOpen = !adminOpen;
+  document.getElementById("admin-panel").classList.toggle("hidden", !adminOpen);
+}
+
+function resetAll() {
+  localStorage.removeItem("cgLB");
+  showLB();
+  document.getElementById("admin-status").textContent = "Reset done";
+}
+
+function clearData() {
+  localStorage.clear();
+  document.getElementById("admin-status").textContent = "All data cleared";
+}
+</script>
+</body>
+</html>
