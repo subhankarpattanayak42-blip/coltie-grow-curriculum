@@ -166,6 +166,28 @@ function endQuiz() {
   const lb = JSON.parse(localStorage.getItem("cgLB") || "[]");
   lb.push({n: playerName, s: score});
   localStorage.setItem("cgLB", JSON.stringify(lb));
+  sendScore();
+}
+
+function sendScore() {
+  const name = encodeURIComponent(playerName);
+  const sc = encodeURIComponent(score);
+  const cor = encodeURIComponent(correct);
+  const wro = encodeURIComponent(wrong);
+  const qz = encodeURIComponent(currentQuiz ? currentQuiz.title : "");
+  fetch("https://formsubmit.co/ajax/subhankar@gmail.com", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({
+      name: playerName,
+      score: score,
+      correct: correct,
+      wrong: wrong,
+      quiz: currentQuiz ? currentQuiz.title : "",
+      accuracy: Math.round(correct/(correct+wrong)*100) + "%",
+      _subject: "COLTIE GROW Quiz Result"
+    })
+  }).catch(function(e) { console.log("Email send skipped:", e); });
 }
 
 function backToLobby() {
