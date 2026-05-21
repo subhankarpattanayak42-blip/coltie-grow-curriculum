@@ -8,33 +8,38 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;min-height:100vh}
 .container{max-width:1100px;margin:0 auto;padding:20px}
-header{text-align:center;padding:40px 20px 30px}
+header{text-align:center;padding:30px 20px 20px}
 header h1{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
 header .sub{font-size:1rem;color:#94a3b8}
 .hidden{display:none!important}
-.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;text-align:center}
+.tabs{display:flex;gap:8px;margin-bottom:20px;justify-content:center}
+.tab{padding:10px 24px;border-radius:10px;cursor:pointer;font-weight:600;font-size:.9rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#94a3b8;transition:all .2s}
+.tab.active{background:rgba(59,130,246,.2);border-color:#3b82f6;color:#fff}
+.tab:hover{background:rgba(255,255,255,.1)}
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:rgba(255,255,255,.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;text-align:center}
 .stat-card .num{font-size:2rem;font-weight:700;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.stat-card .label{font-size:.85rem;color:#94a3b8;margin-top:4px}
+.stat-card .label{font-size:.8rem;color:#94a3b8;margin-top:4px}
 .stat-card.podium{border-color:#f59e0b;background:rgba(245,158,11,.1)}
 .stat-card.podium .num{-webkit-text-fill-color:#f59e0b;background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text}
-.controls{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.controls{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
 .btn-primary{background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(59,130,246,.3)}
+.btn-success{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.btn-success:hover{background:rgba(34,197,94,.25)}
 .btn-danger{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
 .btn-danger:hover{background:rgba(239,68,68,.25)}
 .btn-outline{background:rgba(255,255,255,.05);color:#94a3b8;border:1px solid rgba(255,255,255,.1)}
 .btn-outline:hover{background:rgba(255,255,255,.1)}
 .status-msg{font-size:.8rem;color:#64748b;margin-left:12px}
-.winner-card{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(234,179,8,.1));border:2px solid #f59e0b;border-radius:20px;padding:24px;margin-bottom:24px;text-align:center}
+.winner-card{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(234,179,8,.1));border:2px solid #f59e0b;border-radius:20px;padding:24px;margin-bottom:20px;text-align:center}
 .winner-card .crown{font-size:3rem;margin-bottom:4px}
 .winner-card .name{font-size:2rem;font-weight:700;color:#fbbf24}
-.winner-card .detail{font-size:.9rem;color:#94a3b8;margin-top:4px}
 .winner-card .score-badge{display:inline-block;background:rgba(251,191,36,.2);color:#fbbf24;padding:4px 20px;border-radius:20px;font-weight:700;font-size:1.3rem;margin-top:8px}
-.table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden}
+.table-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;margin-bottom:20px}
 table{width:100%;border-collapse:collapse}
-th{background:rgba(255,255,255,.05);padding:14px 16px;text-align:left;font-size:.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+th{background:rgba(255,255,255,.05);padding:12px 16px;text-align:left;font-size:.8rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 td{padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);font-size:.9rem}
 tr:hover{background:rgba(255,255,255,.03)}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;font-weight:700;font-size:.8rem}
@@ -43,24 +48,39 @@ tr:hover{background:rgba(255,255,255,.03)}
 .rank-3{background:rgba(180,83,9,.2);color:#b45309}
 .rank-other{background:rgba(255,255,255,.05);color:#64748b}
 .quiz-tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.75rem;background:rgba(59,130,246,.15);color:#60a5fa}
+.entry-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px}
+.entry-form h3{font-size:1rem;color:#94a3b8;margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:end}
+.form-row input{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;color:#fff;font-size:.9rem;outline:none;width:100%}
+.form-row input:focus{border-color:#3b82f6}
+.form-row label{font-size:.75rem;color:#64748b;display:block;margin-bottom:4px}
+.form-row .btn{padding:10px 16px}
 .empty-state{text-align:center;padding:60px 20px;color:#64748b}
 .empty-state .big-icon{font-size:4rem;margin-bottom:16px}
 .empty-state h3{font-size:1.3rem;color:#94a3b8;margin-bottom:8px}
-@media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr)}.controls{flex-direction:column}}
+.quick-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.quick-presets .btn{font-size:.8rem;padding:6px 12px}
+@media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr)}.form-row{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="container">
 <header>
 <h1>COLTIE GROW Dashboard</h1>
-<div class="sub">Live Quiz Results & Leaderboard</div>
+<div class="sub">Quiz Results & Leaderboard</div>
 </header>
 
+<div class="tabs">
+<div class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</div>
+<div class="tab" onclick="switchTab('entry',this)">✏️ Manual Entry</div>
+</div>
+
+<div id="dashboard-tab">
 <div class="stats-bar">
 <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">Total Submissions</div></div>
-<div class="stat-card"><div class="num" id="stat-players">0</div><div class="label">Unique Players</div></div>
+<div class="stat-card"><div class="num" id="stat-players">0</div><div class="label">Players</div></div>
 <div class="stat-card"><div class="num" id="stat-avg">0</div><div class="label">Avg Score</div></div>
-<div class="stat-card podium"><div class="num" id="stat-best">0</div><div class="label">Highest Score</div></div>
+<div class="stat-card podium"><div class="num" id="stat-best">0</div><div class="label">Best Score</div></div>
 </div>
 
 <div class="controls">
@@ -73,15 +93,12 @@ tr:hover{background:rgba(255,255,255,.03)}
 <div id="winner-section" class="hidden winner-card">
 <div class="crown">👑</div>
 <div class="name" id="winner-name"></div>
-<div class="detail" id="winner-detail"></div>
 <div class="score-badge" id="winner-score"></div>
 </div>
 
 <div id="table-wrap" class="hidden table-wrap">
 <table>
-<thead>
-<tr><th>Rank</th><th>Name</th><th>Score</th><th>Correct</th><th>Accuracy</th><th>Time</th><th>Quiz</th></tr>
-</thead>
+<thead><tr><th>#</th><th>Name</th><th>Score</th><th>Correct</th><th>Accuracy</th><th>Time</th><th>Quiz</th></tr></thead>
 <tbody id="tbody"></tbody>
 </table>
 </div>
@@ -89,94 +106,127 @@ tr:hover{background:rgba(255,255,255,.03)}
 <div id="empty-state" class="empty-state">
 <div class="big-icon">📊</div>
 <h3>No quiz results yet</h3>
-<p>Click "Pull Data" to refresh from quiz submissions.</p>
+<p>Students take quizzes and click "Pull Data" here, or use Manual Entry tab to add scores.</p>
 </div>
 </div>
 
+<div id="entry-tab" class="hidden">
+<div class="entry-form">
+<h3>Add Student Score</h3>
+<div class="quick-presets">
+<button class="btn btn-outline" onclick="fillPreset('Session 1: AI Basics')">S1: AI Basics</button>
+<button class="btn btn-outline" onclick="fillPreset('Session 2: Prompt Engineering')">S2: Prompt Eng</button>
+<button class="btn btn-outline" onclick="fillPreset('Session 3: Career Identity')">S3: Career</button>
+<button class="btn btn-outline" onclick="fillPreset('Session 4: University Research')">S4: University</button>
+</div>
+<div class="form-row">
+<div><label>Student Name</label><input type="text" id="entry-name" placeholder="e.g. Riya Sharma"></div>
+<div><label>Score (pts)</label><input type="number" id="entry-score" placeholder="85" min="0" max="100"></div>
+<div><label>Correct</label><input type="text" id="entry-correct" placeholder="8/10"></div>
+<div><label>Accuracy</label><input type="text" id="entry-accuracy" placeholder="80%"></div>
+<div><label>Time</label><input type="text" id="entry-time" placeholder="2m 30s"></div>
+<div><label>Quiz</label><input type="text" id="entry-quiz" placeholder="Session 1: AI Basics"></div>
+<div><button class="btn btn-success" onclick="addEntry()">+ Add</button></div>
+</div>
+<p style="font-size:.8rem;color:#64748b;margin-top:8px">Type scores as students call them out. All entries save to the dashboard below.</p>
+</div>
+</div>
+
+</div>
 <script>
 let allResults = [];
 
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('dashboard-tab').classList.toggle('hidden', name !== 'dashboard');
+  document.getElementById('entry-tab').classList.toggle('hidden', name !== 'entry');
+  if (name === 'dashboard') render();
+}
+
 function pullData() {
-  document.getElementById("statusMsg").textContent = "Pulling...";
-  fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c")
-    .then(r => r.json())
-    .then(data => {
-      allResults = data.scores || [];
-      render();
-      document.getElementById("statusMsg").textContent = "Last pulled: " + new Date().toLocaleTimeString() + " (" + allResults.length + " results)";
-    })
-    .catch(function(e) {
-      document.getElementById("statusMsg").textContent = "Error pulling data: " + e.message;
-      allResults = [];
-      render();
-    });
+  const stored = localStorage.getItem('cgAllResults');
+  try { allResults = stored ? JSON.parse(stored) : []; } catch(e) { allResults = []; }
+  render();
+  document.getElementById('statusMsg').textContent = 'Pulled at ' + new Date().toLocaleTimeString() + ' (' + allResults.length + ' results)';
+}
+
+function addEntry() {
+  const name = document.getElementById('entry-name').value.trim();
+  const score = parseInt(document.getElementById('entry-score').value);
+  const correct = document.getElementById('entry-correct').value.trim() || '?';
+  const accuracy = document.getElementById('entry-accuracy').value.trim() || '?';
+  const time = document.getElementById('entry-time').value.trim() || '?';
+  const quiz = document.getElementById('entry-quiz').value.trim() || 'Manual Entry';
+  if (!name || isNaN(score)) { alert('Enter name and score'); return; }
+  allResults.push({n: name, s: score, c: correct, a: accuracy, t: time, q: quiz});
+  localStorage.setItem('cgAllResults', JSON.stringify(allResults));
+  document.getElementById('entry-name').value = '';
+  document.getElementById('entry-score').value = '';
+  document.getElementById('entry-correct').value = '';
+  document.getElementById('entry-accuracy').value = '';
+  document.getElementById('entry-time').value = '';
+  render();
+  document.getElementById('statusMsg').textContent = 'Added ' + name + ' at ' + new Date().toLocaleTimeString();
+}
+
+function fillPreset(quiz) {
+  document.getElementById('entry-quiz').value = quiz;
 }
 
 function clearData() {
-  if (confirm("Clear ALL quiz results from the cloud? This cannot be undone.")) {
-    fetch("https://jsonblob.com/api/jsonBlob/019e4bcd-b5a8-711f-94f5-e487d6fa472c", {
-      method: "PUT",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({scores: []})
-    }).then(function() {
-      allResults = [];
-      render();
-      document.getElementById("statusMsg").textContent = "Cleared at " + new Date().toLocaleTimeString();
-    }).catch(function(e) {
-      document.getElementById("statusMsg").textContent = "Error clearing: " + e.message;
-    });
+  if (confirm('Clear all results?')) {
+    localStorage.removeItem('cgAllResults');
+    allResults = [];
+    render();
+    document.getElementById('statusMsg').textContent = 'Cleared at ' + new Date().toLocaleTimeString();
   }
 }
 
 function exportCSV() {
-  if (allResults.length === 0) { alert("No data to export"); return; }
-  let csv = "Rank,Name,Score,Correct,Accuracy,Time,Quiz\n";
-  const sorted = [...allResults].sort((a,b) => b.s - a.s);
-  sorted.forEach((r,i) => {
+  if (!allResults.length) { alert('No data'); return; }
+  let csv = 'Rank,Name,Score,Correct,Accuracy,Time,Quiz\n';
+  [...allResults].sort((a,b) => b.s - a.s).forEach((r,i) => {
     csv += (i+1) + ',"' + r.n + '",' + r.s + ',' + r.c + ',' + r.a + ',' + r.t + ',"' + r.q + '"\n';
   });
-  const blob = new Blob([csv], {type: "text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "coltie-grow-scores.csv"; a.click();
-  URL.revokeObjectURL(url);
-  document.getElementById("statusMsg").textContent = "CSV exported";
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'coltie-grow-scores.csv';
+  a.click();
 }
 
 function render() {
   const total = allResults.length;
   const unique = [...new Set(allResults.map(r => r.n))].length;
-  const avgScore = total ? Math.round(allResults.reduce((s,r) => s + r.s, 0) / total) : 0;
+  const avg = total ? Math.round(allResults.reduce((s,r) => s + r.s, 0) / total) : 0;
   const best = total ? Math.max(...allResults.map(r => r.s)) : 0;
-
-  document.getElementById("stat-total").textContent = total;
-  document.getElementById("stat-players").textContent = unique;
-  document.getElementById("stat-avg").textContent = avgScore;
-  document.getElementById("stat-best").textContent = best;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-players').textContent = unique;
+  document.getElementById('stat-avg').textContent = avg;
+  document.getElementById('stat-best').textContent = best;
 
   const sorted = [...allResults].sort((a,b) => b.s - a.s);
-  const win = document.getElementById("winner-section");
+  const w = document.getElementById('winner-section');
   if (sorted.length) {
-    win.classList.remove("hidden");
-    document.getElementById("winner-name").textContent = sorted[0].n;
-    document.getElementById("winner-score").textContent = sorted[0].s + " pts";
-    document.getElementById("winner-detail").textContent = sorted[0].q + " | " + sorted[0].t + " | " + sorted[0].a;
+    w.classList.remove('hidden');
+    document.getElementById('winner-name').textContent = sorted[0].n;
+    document.getElementById('winner-score').textContent = sorted[0].s + ' pts';
   } else {
-    win.classList.add("hidden");
+    w.classList.add('hidden');
   }
 
-  const tb = document.getElementById("tbody");
-  tb.innerHTML = "";
-  const tw = document.getElementById("table-wrap");
-  const es = document.getElementById("empty-state");
-  if (!sorted.length) { tw.classList.add("hidden"); es.classList.remove("hidden"); return; }
-  tw.classList.remove("hidden"); es.classList.add("hidden");
+  const tb = document.getElementById('tbody');
+  tb.innerHTML = '';
+  const tw = document.getElementById('table-wrap');
+  const es = document.getElementById('empty-state');
+  if (!sorted.length) { tw.classList.add('hidden'); es.classList.remove('hidden'); return; }
+  tw.classList.remove('hidden'); es.classList.add('hidden');
 
   sorted.forEach((r, i) => {
-    const tr = document.createElement("tr");
+    const tr = document.createElement('tr');
     const rk = i + 1;
-    const rc = rk === 1 ? "rank-1" : rk === 2 ? "rank-2" : rk === 3 ? "rank-3" : "rank-other";
-    const md = rk === 1 ? "🥇" : rk === 2 ? "🥈" : rk === 3 ? "🥉" : rk;
+    const rc = rk === 1 ? 'rank-1' : rk === 2 ? 'rank-2' : rk === 3 ? 'rank-3' : 'rank-other';
+    const md = rk === 1 ? '&#129351;' : rk === 2 ? '&#129352;' : rk === 3 ? '&#129353;' : rk;
     tr.innerHTML = '<td><span class="rank-badge ' + rc + '">' + md + '</span></td>' +
       '<td><strong>' + r.n + '</strong></td>' +
       '<td><strong style="color:#fbbf24">' + r.s + '</strong></td>' +
@@ -188,6 +238,7 @@ function render() {
   });
 }
 
+// Auto pull
 pullData();
 </script>
 </body>
