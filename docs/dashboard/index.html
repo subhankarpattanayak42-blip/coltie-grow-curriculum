@@ -115,7 +115,13 @@ tr:hover{background:rgba(255,255,255,.03)}
 <h3>Add Student Score</h3>
 
 <div id="email-status" style="margin-bottom:12px;font-size:.85rem"></div>
-<button class="btn btn-primary" onclick="pullFromEmail()" style="margin-bottom:16px">📧 Fetch from Email</button>
+<button class="btn btn-primary" onclick="pullFromEmail()" style="margin-bottom:8px">📧 Fetch from Email</button>
+<button class="btn btn-outline" onclick="downloadCSVTemplate()" style="margin-bottom:8px">📥 Download CSV Template</button>
+
+<div style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.15);border-radius:10px">
+  <p style="font-size:.85rem;color:#94a3b8;margin-bottom:8px"><strong>Upload CSV</strong> — format: Name,Score,Correct,Accuracy,Time,Quiz</p>
+  <input type="file" id="csv-upload" accept=".csv" style="color:#fff;font-size:.85rem" onchange="uploadCSV(event)">
+</div>
 
 <div class="quick-presets">
 <button class="btn btn-outline" onclick="fillPreset('Session 1: AI Basics')">S1: AI Basics</button>
@@ -270,6 +276,44 @@ function pullFromEmail() {
       btn.innerHTML = orig;
       btn.disabled = false;
     });
+}
+
+function downloadCSVTemplate() {
+  const csv = 'Name,Score,Correct,Accuracy,Time,Quiz\nRiya Sharma,95,10/10,100%,1m 20s,Session 1: AI Basics\nArjun Patel,82,8/10,80%,2m 10s,Session 2: Prompt Engineering';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'coltie-grow-template.csv';
+  a.click();
+}
+
+function uploadCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split('\n');
+    let count = 0;
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split(',');
+      if (parts.length >= 2 && parts[0].trim()) {
+        allResults.push({
+          n: parts[0].trim(),
+          s: parseInt(parts[1]) || 0,
+          c: (parts[2] || '').trim() || '?',
+          a: (parts[3] || '').trim() || '?',
+          t: (parts[4] || '').trim() || '?',
+          q: (parts[5] || '').trim() || 'CSV Import'
+        });
+        count++;
+      }
+    }
+    localStorage.setItem('cgAllResults', JSON.stringify(allResults));
+    render();
+    document.getElementById('email-status').innerHTML = '✅ Imported ' + count + ' entries from CSV';
+    document.getElementById('statusMsg').textContent = 'CSV import at ' + new Date().toLocaleTimeString();
+    event.target.value = '';
+  };
+  reader.readAsText(file);
 }
 
 pullData();
