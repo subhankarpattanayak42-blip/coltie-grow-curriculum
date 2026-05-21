@@ -176,6 +176,7 @@ function endQuiz() {
   allRes.push({n: playerName, s: score, c: correct+"/"+currentQuiz.questions.length, a: Math.round(correct/(correct+wrong)*100)+"%", t: timeTaken, q: currentQuiz ? currentQuiz.title : ""});
   localStorage.setItem("cgAllResults", JSON.stringify(allRes));
   sendScore();
+  sendToCloud();
 }
 
 function sendScore() {
@@ -203,6 +204,21 @@ function sendScore() {
       _subject: "COLTIE GROW Quiz Result"
     })
   }).catch(function(e) { console.log("Email send skipped:", e); });
+}
+
+function sendToCloud() {
+  const entry = {n: playerName, s: score, c: correct+"/"+currentQuiz.questions.length, a: Math.round(correct/(correct+wrong)*100)+"%", t: timeTaken, q: currentQuiz ? currentQuiz.title : ""};
+  fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+    method: "GET"
+  }).then(r => r.json()).then(data => {
+    if (!data.scores) data.scores = [];
+    data.scores.push(entry);
+    fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(data)
+    }).catch(function(e) { console.log("Cloud save error:", e); });
+  }).catch(function(e) { console.log("Cloud fetch error:", e); });
 }
 
 function backToLobby() {

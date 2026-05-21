@@ -97,19 +97,34 @@ tr:hover{background:rgba(255,255,255,.03)}
 let allResults = [];
 
 function pullData() {
-  try {
-    allResults = JSON.parse(localStorage.getItem("cgAllResults") || "[]");
-  } catch(e) { allResults = []; }
-  render();
-  document.getElementById("statusMsg").textContent = "Last pulled: " + new Date().toLocaleTimeString();
+  document.getElementById("statusMsg").textContent = "Pulling...";
+  fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411")
+    .then(r => r.json())
+    .then(data => {
+      allResults = data.scores || [];
+      render();
+      document.getElementById("statusMsg").textContent = "Last pulled: " + new Date().toLocaleTimeString() + " (" + allResults.length + " results)";
+    })
+    .catch(function(e) {
+      document.getElementById("statusMsg").textContent = "Error pulling data: " + e.message;
+      allResults = [];
+      render();
+    });
 }
 
 function clearData() {
-  if (confirm("Clear all quiz results?")) {
-    localStorage.removeItem("cgAllResults");
-    allResults = [];
-    render();
-    document.getElementById("statusMsg").textContent = "Cleared at " + new Date().toLocaleTimeString();
+  if (confirm("Clear ALL quiz results from the cloud? This cannot be undone.")) {
+    fetch("https://jsonblob.com/api/jsonBlob/019e4bcb-dc17-74c7-a603-1d623431c411", {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({scores: []})
+    }).then(function() {
+      allResults = [];
+      render();
+      document.getElementById("statusMsg").textContent = "Cleared at " + new Date().toLocaleTimeString();
+    }).catch(function(e) {
+      document.getElementById("statusMsg").textContent = "Error clearing: " + e.message;
+    });
   }
 }
 
