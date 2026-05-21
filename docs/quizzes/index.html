@@ -171,6 +171,10 @@ function endQuiz() {
   const lb = JSON.parse(localStorage.getItem("cgLB") || "[]");
   lb.push({n: playerName, s: score});
   localStorage.setItem("cgLB", JSON.stringify(lb));
+  
+  const allRes = JSON.parse(localStorage.getItem("cgAllResults") || "[]");
+  allRes.push({n: playerName, s: score, c: correct+"/"+currentQuiz.questions.length, a: Math.round(correct/(correct+wrong)*100)+"%", t: timeTaken, q: currentQuiz ? currentQuiz.title : ""});
+  localStorage.setItem("cgAllResults", JSON.stringify(allRes));
   sendScore();
 }
 
